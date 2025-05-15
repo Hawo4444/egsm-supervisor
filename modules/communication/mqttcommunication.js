@@ -508,8 +508,6 @@ function getEngineCompleteNodeDiagram(engineid) {
     return promise
 }
 
-
-
 // Aggregator-related functions
 /**
  * Creates a new Monitoring activity on a specified Aggregator
@@ -706,7 +704,6 @@ async function unsubscribeNotificationTopic(topic) {
     }
 }
 
-
 module.exports = {
     EVENT_EMITTER: EVENT_EMITTER,
     initBrokerConnection: initBrokerConnection,
@@ -728,5 +725,4 @@ module.exports = {
 
     subscribeNotificationTopic: subscribeNotificationTopic,
     unsubscribeNotificationTopic: unsubscribeNotificationTopic,
-
 }

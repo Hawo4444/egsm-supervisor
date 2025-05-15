@@ -14,7 +14,7 @@ var DDB = require('../egsm-common/database/databaseconnector');
 
 module.id = 'SOCKET'
 
-const SOCKET_PORT = 8080
+const SOCKET_PORT = 8081
 const OVERVIEW_UPDATE_PERIOD = 5 //Update period in secs of Overview and System Information frontend modules
 
 //Front-end module keys
