@@ -2,7 +2,7 @@
 <!-- origin at X=0.0 Y=0.0 -->
 <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:ext="http://org.eclipse.bpmn2/ext" xmlns:xs="http://www.w3.org/2001/XMLSchema" id="Definitions_1" exporter="org.eclipse.bpmn2.modeler.core" exporterVersion="1.3.1.Final-v20161006-1425-B58" targetNamespace="http://org.eclipse.bpmn2/default/process">
   <bpmn2:process id="shipment_AMS-BRU" name="Default Process" isExecutable="false">
-    <bpmn2:startEvent id="ams-bru_leg_started" name="ams-bru leg started">
+    <bpmn2:startEvent id="process_started" name="process_started">
       <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
       <bpmn2:dataOutput id="DataOutput_3" name="output1"/>
       <bpmn2:dataOutputAssociation id="DataOutputAssociation_6">
@@ -14,8 +14,8 @@
       </bpmn2:outputSet>
       <bpmn2:messageEventDefinition id="MessageEventDefinition_1"/>
     </bpmn2:startEvent>
-    <bpmn2:sequenceFlow id="SequenceFlow_1" sourceRef="ams-bru_leg_started" targetRef="Load"/>
-    <bpmn2:endEvent id="ams-bru_leg_ended" name="ams-bru leg ended">
+    <bpmn2:sequenceFlow id="SequenceFlow_1" sourceRef="process_started" targetRef="Load"/>
+    <bpmn2:endEvent id="process_ended" name="process_ended">
       <bpmn2:incoming>SequenceFlow_9</bpmn2:incoming>
       <bpmn2:dataInput id="DataInput_3" name="input1"/>
       <bpmn2:dataInputAssociation id="DataInputAssociation_6">
@@ -118,7 +118,7 @@
     <bpmn2:sequenceFlow id="SequenceFlow_2" sourceRef="Load" targetRef="ExclusiveGateway_1"/>
     <bpmn2:sequenceFlow id="SequenceFlow_3" sourceRef="ExclusiveGateway_1" targetRef="Drive"/>
     <bpmn2:sequenceFlow id="SequenceFlow_4" sourceRef="Drive" targetRef="ExclusiveGateway_2"/>
-    <bpmn2:sequenceFlow id="SequenceFlow_6" name="{infoModel./infoModel/Truck/status} != [BruStill]" sourceRef="ExclusiveGateway_2" targetRef="Pause"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_6" sourceRef="ExclusiveGateway_2" targetRef="Pause"/>
     <bpmn2:sequenceFlow id="SequenceFlow_7" sourceRef="Pause" targetRef="ExclusiveGateway_1"/>
     <bpmn2:dataObject id="Truck" name="Truck"/>
     <bpmn2:dataObjectReference id="DataObjectReference_2" name="Truck" dataObjectRef="Truck">
@@ -136,17 +136,17 @@
     <bpmn2:dataObjectReference id="DataObjectReference_6" name="Truck" dataObjectRef="Truck">
       <bpmn2:dataState id="HwMoving" name="HwMoving"/>
     </bpmn2:dataObjectReference>
-    <bpmn2:sequenceFlow id="SequenceFlow_9" name="{infoModel./infoModel/Truck/status} == [BruStill]" sourceRef="ExclusiveGateway_2" targetRef="ams-bru_leg_ended"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_9" sourceRef="ExclusiveGateway_2" targetRef="process_ended"/>
   </bpmn2:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1" name="Default Process Diagram">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="shipment_AMS-BRU">
-      <bpmndi:BPMNShape id="BPMNShape_1" bpmnElement="ams-bru_leg_started">
+      <bpmndi:BPMNShape id="BPMNShape_1" bpmnElement="process_started">
         <dc:Bounds height="36.0" width="36.0" x="0.0" y="255.0"/>
         <bpmndi:BPMNLabel id="BPMNLabel_1" labelStyle="BPMNLabelStyle_1">
           <dc:Bounds height="34.0" width="75.0" x="-19.0" y="291.0"/>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_2" bpmnElement="ams-bru_leg_ended">
+      <bpmndi:BPMNShape id="BPMNShape_2" bpmnElement="process_ended">
         <dc:Bounds height="36.0" width="36.0" x="800.0" y="262.0"/>
         <bpmndi:BPMNLabel id="BPMNLabel_3" labelStyle="BPMNLabelStyle_1">
           <dc:Bounds height="34.0" width="70.0" x="783.0" y="298.0"/>

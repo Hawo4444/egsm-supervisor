@@ -2,12 +2,12 @@
 <!-- origin at X=0.0 Y=0.0 -->
 <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://org.eclipse.bpmn2/default/process">
   <bpmn2:process id="shipment_FRA-AMS" name="Default Process" isExecutable="false">
-    <bpmn2:startEvent id="fra-ams_leg_started" name="fra-ams leg started">
+    <bpmn2:startEvent id="process_started" name="process_started">
       <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
       <bpmn2:messageEventDefinition id="MessageEventDefinition_1"/>
     </bpmn2:startEvent>
-    <bpmn2:sequenceFlow id="SequenceFlow_1" sourceRef="fra-ams_leg_started" targetRef="Load"/>
-    <bpmn2:endEvent id="fra-ams_leg_ended" name="fra-ams leg ended">
+    <bpmn2:sequenceFlow id="SequenceFlow_1" sourceRef="process_started" targetRef="Load"/>
+    <bpmn2:endEvent id="process_ended" name="process_ended">
       <bpmn2:incoming>SequenceFlow_9</bpmn2:incoming>
       <bpmn2:messageEventDefinition id="MessageEventDefinition_2"/>
     </bpmn2:endEvent>
@@ -38,17 +38,17 @@
     <bpmn2:sequenceFlow id="SequenceFlow_4" sourceRef="Drive" targetRef="ExclusiveGateway_2"/>
     <bpmn2:sequenceFlow id="SequenceFlow_6" sourceRef="ExclusiveGateway_2" targetRef="Pause"/>
     <bpmn2:sequenceFlow id="SequenceFlow_7" sourceRef="Pause" targetRef="ExclusiveGateway_1"/>
-    <bpmn2:sequenceFlow id="SequenceFlow_9" sourceRef="ExclusiveGateway_2" targetRef="fra-ams_leg_ended"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_9" sourceRef="ExclusiveGateway_2" targetRef="process_ended"/>
   </bpmn2:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1" name="Default Process Diagram">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="shipment_FRA-AMS">
-      <bpmndi:BPMNShape id="BPMNShape_1" bpmnElement="fra-ams_leg_started">
+      <bpmndi:BPMNShape id="BPMNShape_1" bpmnElement="process_started">
         <dc:Bounds height="36.0" width="36.0" x="0.0" y="255.0"/>
         <bpmndi:BPMNLabel id="BPMNLabel_1">
           <dc:Bounds height="34.0" width="75.0" x="-19.0" y="291.0"/>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_2" bpmnElement="fra-ams_leg_ended">
+      <bpmndi:BPMNShape id="BPMNShape_2" bpmnElement="process_ended">
         <dc:Bounds height="36.0" width="36.0" x="800.0" y="262.0"/>
         <bpmndi:BPMNLabel id="BPMNLabel_3">
           <dc:Bounds height="34.0" width="70.0" x="783.0" y="298.0"/>
