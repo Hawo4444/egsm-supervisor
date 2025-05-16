@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:ext="http://org.eclipse.bpmn2/ext" xmlns:xs="http://www.w3.org/2001/XMLSchema" id="Definitions_1" targetNamespace="http://org.eclipse.bpmn2/default/process" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.1.1">
   <bpmn2:process id="shipment_AMS-LHR" name="Default Process" isExecutable="false">
-    <bpmn2:startEvent id="process_started" name="process_started">
+    <bpmn2:startEvent id="ams-lhr_leg_started" name="ams-lhr leg started">
       <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
       <bpmn2:dataOutput id="DataOutput_3" name="output1" />
       <bpmn2:dataOutputAssociation id="DataOutputAssociation_6">
@@ -13,8 +13,8 @@
       </bpmn2:outputSet>
       <bpmn2:messageEventDefinition id="MessageEventDefinition_1" />
     </bpmn2:startEvent>
-    <bpmn2:sequenceFlow id="SequenceFlow_1" sourceRef="process_started" targetRef="Load" />
-    <bpmn2:endEvent id="process_ended" name="process_ended">
+    <bpmn2:sequenceFlow id="SequenceFlow_1" sourceRef="ams-lhr_leg_started" targetRef="Load" />
+    <bpmn2:endEvent id="ams-lhr_leg_ended" name="ams-lhr leg ended">
       <bpmn2:incoming>SequenceFlow_12</bpmn2:incoming>
       <bpmn2:dataInput id="DataInput_3" name="input1" />
       <bpmn2:dataInputAssociation id="DataInputAssociation_6">
@@ -236,18 +236,33 @@
     <bpmn2:sequenceFlow id="SequenceFlow_8" sourceRef="PauseEU" targetRef="ExclusiveGateway_7" />
     <bpmn2:sequenceFlow id="SequenceFlow_10" sourceRef="ExclusiveGateway_7" targetRef="DriveEU" />
     <bpmn2:sequenceFlow id="SequenceFlow_11" sourceRef="Connection" targetRef="ExclusiveGateway_1" />
-    <bpmn2:sequenceFlow id="SequenceFlow_12" sourceRef="ExclusiveGateway_2" targetRef="process_ended" />
-    <bpmn2:sequenceFlow id="SequenceFlow_13" sourceRef="ExclusiveGateway_2" targetRef="PauseGB" />
+    <bpmn2:sequenceFlow id="SequenceFlow_12" name="{infoModel./infoModel/Truck/status} == [LhrStill]" sourceRef="ExclusiveGateway_2" targetRef="ams-lhr_leg_ended" />
+    <bpmn2:sequenceFlow id="SequenceFlow_13" name="{infoModel./infoModel/Truck/status} != [LhrStill]" sourceRef="ExclusiveGateway_2" targetRef="PauseGB" />
+    <bpmn2:dataObjectReference id="DataObjectReference_14" name="Truck" dataObjectRef="Truck">
+      <bpmn2:dataState id="ChrStill" name="ChrStill" />
+    </bpmn2:dataObjectReference>
+    <bpmn2:dataObjectReference id="DataObjectReference_15" name="Truck" dataObjectRef="Truck">
+      <bpmn2:dataState id="CoqStill" name="CoqStill" />
+    </bpmn2:dataObjectReference>
+    <bpmn2:dataObjectReference id="DataObjectReference_16" name="Truck" dataObjectRef="Truck">
+      <bpmn2:dataState id="ChrMoving" name="ChrMoving" />
+    </bpmn2:dataObjectReference>
+    <bpmn2:dataObjectReference id="DataObjectReference_17" name="Truck" dataObjectRef="Truck">
+      <bpmn2:dataState id="HwStill" name="HwStill" />
+    </bpmn2:dataObjectReference>
+    <bpmn2:dataObjectReference id="DataObjectReference_18" name="Truck" dataObjectRef="Truck">
+      <bpmn2:dataState id="HwMoving" name="HwMoving" />
+    </bpmn2:dataObjectReference>
   </bpmn2:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1" name="Default Process Diagram">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="shipment_AMS-LHR">
-      <bpmndi:BPMNShape id="BPMNShape_1" bpmnElement="process_started">
+      <bpmndi:BPMNShape id="BPMNShape_1" bpmnElement="ams-lhr_leg_started">
         <dc:Bounds x="170" y="255" width="36" height="36" />
         <bpmndi:BPMNLabel id="BPMNLabel_1" labelStyle="BPMNLabelStyle_1">
           <dc:Bounds x="160" y="291" width="58" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_2" bpmnElement="process_ended">
+      <bpmndi:BPMNShape id="BPMNShape_2" bpmnElement="ams-lhr_leg_ended">
         <dc:Bounds x="1670" y="262" width="36" height="36" />
         <bpmndi:BPMNLabel id="BPMNLabel_3" labelStyle="BPMNLabelStyle_1">
           <dc:Bounds x="1644" y="298" width="88" height="14" />
