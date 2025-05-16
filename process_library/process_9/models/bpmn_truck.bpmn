@@ -122,36 +122,6 @@
         <dc:Bounds height="50.0" width="50.0" x="515.0" y="255.0"/>
         <bpmndi:BPMNLabel id="BPMNLabel_9" labelStyle="BPMNLabelStyle_1"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_DataObjectReference_1" bpmnElement="DataObjectReference_2">
-        <dc:Bounds height="50.0" width="36.0" x="100.0" y="100.0"/>
-        <bpmndi:BPMNLabel id="BPMNLabel_18">
-          <dc:Bounds height="34.0" width="61.0" x="88.0" y="150.0"/>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_DataObjectReference_2" bpmnElement="DataObjectReference_3">
-        <dc:Bounds height="50.0" width="36.0" x="214.0" y="100.0"/>
-        <bpmndi:BPMNLabel id="BPMNLabel_19">
-          <dc:Bounds height="51.0" width="49.0" x="208.0" y="150.0"/>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_DataObjectReference_3" bpmnElement="DataObjectReference_4">
-        <dc:Bounds height="50.0" width="36.0" x="529.0" y="100.0"/>
-        <bpmndi:BPMNLabel id="BPMNLabel_20">
-          <dc:Bounds height="34.0" width="53.0" x="521.0" y="150.0"/>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_DataObjectReference_4" bpmnElement="DataObjectReference_5">
-        <dc:Bounds height="50.0" width="36.0" x="560.0" y="410.0"/>
-        <bpmndi:BPMNLabel id="BPMNLabel_21">
-          <dc:Bounds height="34.0" width="52.0" x="552.0" y="460.0"/>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_DataObjectReference_5" bpmnElement="DataObjectReference_6">
-        <dc:Bounds height="50.0" width="36.0" x="264.0" y="420.0"/>
-        <bpmndi:BPMNLabel id="BPMNLabel_22">
-          <dc:Bounds height="34.0" width="74.0" x="245.0" y="470.0"/>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1" bpmnElement="SequenceFlow_1" sourceElement="BPMNShape_1" targetElement="BPMNShape_Load">
         <di:waypoint xsi:type="dc:Point" x="36.0" y="273.0"/>
         <di:waypoint xsi:type="dc:Point" x="70.0" y="273.0"/>
