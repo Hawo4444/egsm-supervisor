@@ -715,6 +715,26 @@ async function createProcessInstance(process_type, instance_name, bpmn_job) {
                                 //Publish message to 'lifecycle' topic to notify aggregators about the new instance
                                 DDB.increaseProcessTypeInstanceCounter(process_type)
                                 resolve(response)
+                                var deviationAggJobId = process_type + '/deviation_aggregation_job'
+                                var deviationJobConfig = {
+                                    id: deviationAggJobId,
+                                    type: 'process-deviation-aggregation',
+                                    processtype: process_type,
+                                    perspectives: processDetails['perspectives'],
+                                    notificationrules: 'NOTIFY_ALL'
+                                }
+                                //Create a new Deviation Aggregation Job for the process type
+                                createJobInstance(deviationAggJobId, deviationJobConfig).then((result) => {
+                                    if (result.payload.result === 'created') {
+                                        LOG.logSystem('INFO', `Deviation aggregation job created for process type: ${process_type}`, module.id)
+                                    } else if (result.payload.result === 'id_not_free') {
+                                        LOG.logSystem('DEBUG', `Deviation aggregation job already exists for process type: ${process_type}`, module.id)
+                                    } else {
+                                        LOG.logSystem('WARNING', `Failed to create deviation aggregation job for process type: ${process_type}, result: ${result.payload.result}`, module.id)
+                                    }
+                                }).catch((error) => {
+                                    LOG.logSystem('ERROR', `Error creating deviation aggregation job for process type: ${process_type}, error: ${error}`, module.id)
+                                })
                             }
                             //Engines are created, but the requested related jobs are not ok
                             else if (aggregatedResult && !jobAggregatedResult) {
