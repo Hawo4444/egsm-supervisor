@@ -167,6 +167,21 @@ function onMessageReceived(hostname, port, topic, message) {
                 }
                 break;
             }
+            case 'GET_DEVIATION_AGGREGATORS_RESP': {
+                LOG.logSystem('DEBUG', `GET_DEVIATION_AGGREGATORS_RESP message received, request_id: [${msgJson['request_id']}]`, module.id)
+                if (REQUEST_PROMISES.has(msgJson['request_id'])) {
+                    REQUEST_PROMISES.get(msgJson['request_id'])(msgJson['payload'])
+                    REQUEST_PROMISES.delete(msgJson['request_id'])
+                }
+                break;
+            }
+            case 'GET_COMPLETE_JOB_DATA_RESPONSE': {
+                LOG.logSystem('DEBUG', `GET_DEVIATION_AGGREGATORS_RESP message received, request_id: [${msgJson['request_id']}]`, module.id)
+                if (REQUEST_PROMISES.has(msgJson['request_id'])) {
+                    REQUEST_PROMISES.get(msgJson['request_id'])(msgJson['payload'])
+                    REQUEST_PROMISES.delete(msgJson['request_id'])
+                }
+            }
         }
     }
     else if (NOTIFICATION_TOPICS.has(topic)) {
@@ -670,6 +685,50 @@ async function searchForJob(jobid) {
 }
 
 /**
+ * Get jobs from a specific aggregator
+ * @returns Promise containing array of aggregators
+ */
+async function getDeviationAggregators() {
+    LOG.logSystem('DEBUG', `Searching for all deviation aggregators`, module.id)
+    var request_id = UUID.v4();
+    var message = {
+        "request_id": request_id,
+        "message_type": 'GET_DEVIATION_AGGREGATORS',
+    }
+    MQTT.publishTopic(BROKER.host, BROKER.port, SUPERVISOR_TO_AGGREGATORS, JSON.stringify(message))
+    var promise = new Promise(function (resolve, reject) {
+        REQUEST_PROMISES.set(request_id, resolve)
+        wait(20000000).then(() => {
+            resolve('not_found')
+        })
+    });
+    return promise
+}
+
+/**
+ * Get complete job data including aggregated results
+ * @param {string} jobId Job ID to retrieve
+ * @returns Promise containing complete job data
+ */
+async function getJobCompleteData(jobId) {
+    LOG.logSystem('DEBUG', `Retrieving aggregated data for for Job [${jobId}]`, module.id)
+    var request_id = UUID.v4();
+    var message = {
+        "request_id": request_id,
+        "message_type": 'GET_COMPLETE_JOB_DATA',
+        job_id: jobId,
+    }
+    MQTT.publishTopic(BROKER.host, BROKER.port, SUPERVISOR_TO_AGGREGATORS, JSON.stringify(message))
+    var promise = new Promise(function (resolve, reject) {
+        REQUEST_PROMISES.set(request_id, resolve)
+        wait(20000000).then(() => {
+            resolve('not_found')
+        })
+    });
+    return promise
+}
+
+/**
  * Can be used to subscribe to a defined MQTT topic
  * In case of a new message from the topic a new event will be emitted by the EVENT_EMITTER
  * Subscription to the same topic can be performed multiple times, in this case intead of multiply subscription
@@ -725,4 +784,7 @@ module.exports = {
 
     subscribeNotificationTopic: subscribeNotificationTopic,
     unsubscribeNotificationTopic: unsubscribeNotificationTopic,
+
+    getDeviationAggregators: getDeviationAggregators,
+    getJobCompleteData: getJobCompleteData,
 }

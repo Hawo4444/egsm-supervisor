@@ -164,6 +164,14 @@ async function messageHandler(message, sessionid) {
                 if (msgObj['payload']['type'] == 'get_process_type_aggregation') {
                     return getProcessTypeAggregation(msgObj['payload']['process_type'])
                 }
+            case MODULE_AGGREGATORS:
+                if (msgObj['payload']['request_type'] == 'available_aggregations') {
+                    return getAvailableAggregations()
+                }
+                else if (msgObj['payload']['request_type'] == 'complete_aggregation_data') {
+                    return getCompleteAggregationData(msgObj['payload']['process_type'])
+                }
+                break;
         }
     }
     else if (msgObj['type'] == 'command') {
@@ -787,6 +795,69 @@ function createJobInstance(jobid, jobconfig) {
             return resolve(response)
         })
     })
+    return promise
+}
+
+/**
+ * Get all available process deviation aggregation jobs
+ * @returns Promise containing available aggregations
+ */
+async function getAvailableAggregations() {
+    var promise = new Promise(async function (resolve, reject) {
+        MQTTCOMM.getDeviationAggregators().then(async (result) => {
+            var response = {
+                module: MODULE_AGGREGATORS,
+                payload: {
+                    type: 'available_aggregations',
+                    available_aggregations: result
+                }
+            }
+            return resolve(response)
+        })
+    })
+    return promise
+}
+
+/**
+ * Get complete aggregation data for a specific process type
+ * @param {string} processType Process type to get aggregation data for
+ * @returns Promise containing complete aggregation data
+ */
+async function getCompleteAggregationData(processType) {
+    var promise = new Promise(async function (resolve, reject) {
+        try {
+            var jobId = processType + '/deviation_aggregation_job'
+            var jobData = await MQTTCOMM.getJobCompleteData(jobId)
+
+            if (jobData && jobData !== 'not_found') {
+                var response = {
+                    module: MODULE_AGGREGATORS,
+                    payload: {
+                        complete_aggregation_data: jobData
+                    }
+                }
+            } else {
+                var response = {
+                    module: MODULE_AGGREGATORS,
+                    payload: {
+                        complete_aggregation_data: null,
+                        error: 'Aggregation job not found'
+                    }
+                }
+            }
+            resolve(response)
+        } catch (error) {
+            LOG.logSystem('ERROR', `Error getting aggregation data: ${error.message}`, module.id)
+            var response = {
+                module: MODULE_AGGREGATORS,
+                payload: {
+                    complete_aggregation_data: null,
+                    error: error.message
+                }
+            }
+            resolve(response)
+        }
+    });
     return promise
 }
 
