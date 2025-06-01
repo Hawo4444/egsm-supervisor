@@ -763,6 +763,25 @@ async function unsubscribeNotificationTopic(topic) {
     }
 }
 
+/**
+ * Emit process instance creation notification to all aggregators
+ * @param {String} processType Process type of the new instance
+ * @param {String} instanceId Instance ID of the new instance
+ */
+async function emitProcessInstanceCreation(processType, instanceId) {
+    LOG.logSystem('DEBUG', `Emitting process instance creation: ${processType}/${instanceId}`, module.id)
+    const newInstanceMessage = {
+        request_id: UUID.v4(),
+        message_type: 'NEW_PROCESS_INSTANCE',
+        payload: {
+            "process_type": processType,
+            "process_id": instanceId
+        }
+    }
+
+    MQTT.publishTopic(BROKER.host, BROKER.port, SUPERVISOR_TO_AGGREGATORS, JSON.stringify(newInstanceMessage))
+}
+
 module.exports = {
     EVENT_EMITTER: EVENT_EMITTER,
     initBrokerConnection: initBrokerConnection,
@@ -775,6 +794,7 @@ module.exports = {
     getWorkerEngineList: getWorkerEngineList,
     getEngineCompleteDiagram: getEngineCompleteDiagram,
     getEngineCompleteNodeDiagram: getEngineCompleteNodeDiagram,
+    emitProcessInstanceCreation: emitProcessInstanceCreation,
 
     createNewMonitoringActivity: createNewMonitoringActivity,
     getAggregatorList: getAggregatorList,

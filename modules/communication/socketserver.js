@@ -663,7 +663,7 @@ async function createNewProcessGroup(group_id, rules) {
  * @param {String} process_type Type of the process (need to be defined in the library module in advance)
  * @param {String} instance_name Process instance name (the function checks for global uniqueness among other Processes and returns error if the ID is already in use)
  * @param {Boolean} bpmnJob True if an eGSM to BPMN translation Job should be started as well (on an Aggregator)
- * @returns Promise will become 'ok' if the creation was successfull 'id_not_free' if the ID is already used, 'engines_ok' if translation Job was requested but not managed to create for any reason
+ * @returns Promise will become 'ok' if the creation was successfull 'id_not_free' if the ID is already in use, 'engines_ok' if translation Job was requested but not managed to create for any reason
  */
 async function createProcessInstance(process_type, instance_name, bpmn_job) {
     var promise = new Promise(async function (resolve, reject) {
@@ -683,6 +683,7 @@ async function createProcessInstance(process_type, instance_name, bpmn_job) {
                     var processDetails = processEntry.definition
                     var creation_results = []
                     var monitoredEngines = []
+                    
                     processDetails['perspectives'].forEach(async element => {
                         var engineName = process_type + '/' + instance_name + '__' + element['name']
                         creation_results.push(MQTTCOMM.createNewEngine(engineName, element['info_model'], element['egsm_model'], element['bindings'], processDetails.stakeholders))
@@ -696,71 +697,71 @@ async function createProcessInstance(process_type, instance_name, bpmn_job) {
                                 aggregatedResult = false
                             }
                         });
-                        var job_results = []
-                        //Creating one job, includig all perpsectives
-                        if (aggregatedResult && bpmn_job) {
-                            var jobId = process_type + '/' + instance_name + '/bpmn_job'
-                            var jobConfig = {
-                                id: jobId,
-                                type: 'bpmn-job',
-                                process_type: process_type,
-                                //process_instance_id: instance_name,
-                                monitored: monitoredEngines,
+
+                        if (aggregatedResult) {
+                            var job_results = []
+                            
+                            // 1. Ensure deviation aggregation job exists
+                            var deviationAggJobId = process_type + '/deviation_aggregation_job'
+                            var deviationJobConfig = {
+                                id: deviationAggJobId,
+                                type: 'process-deviation-aggregation',
+                                processtype: process_type,
                                 perspectives: processDetails['perspectives'],
                                 notificationrules: 'NOTIFY_ALL'
                             }
-                            job_results.push(createJobInstance(jobId, jobConfig))
-                        }
-                        await Promise.all(job_results).then((job_creation_results) => {
-                            var jobAggregatedResult = true
-                            job_creation_results.forEach(element => {
-                                if (element.payload.result != "created") {
-                                    jobAggregatedResult = false
-                                }
-                            });
-                            if (aggregatedResult && jobAggregatedResult) {
-                                response.payload.result = "ok"
-                                //Publish message to 'lifecycle' topic to notify aggregators about the new instance
-                                DDB.increaseProcessTypeInstanceCounter(process_type)
-                                resolve(response)
-                                var deviationAggJobId = process_type + '/deviation_aggregation_job'
-                                var deviationJobConfig = {
-                                    id: deviationAggJobId,
-                                    type: 'process-deviation-aggregation',
-                                    processtype: process_type,
+                            
+                            job_results.push(createJobInstance(deviationAggJobId, deviationJobConfig))
+
+                            // 2. Create BPMN job
+                            if (bpmn_job) {
+                                var jobId = process_type + '/' + instance_name + '/bpmn_job'
+                                var jobConfig = {
+                                    id: jobId,
+                                    type: 'bpmn-job',
+                                    process_type: process_type,
+                                    monitored: monitoredEngines,
                                     perspectives: processDetails['perspectives'],
                                     notificationrules: 'NOTIFY_ALL'
                                 }
-                                //Create a new Deviation Aggregation Job for the process type
-                                createJobInstance(deviationAggJobId, deviationJobConfig).then((result) => {
-                                    if (result.payload.result === 'created') {
-                                        LOG.logSystem('INFO', `Deviation aggregation job created for process type: ${process_type}`, module.id)
-                                    } else if (result.payload.result === 'id_not_free') {
-                                        LOG.logSystem('DEBUG', `Deviation aggregation job already exists for process type: ${process_type}`, module.id)
-                                    } else {
-                                        LOG.logSystem('WARNING', `Failed to create deviation aggregation job for process type: ${process_type}, result: ${result.payload.result}`, module.id)
-                                    }
-                                }).catch((error) => {
-                                    LOG.logSystem('ERROR', `Error creating deviation aggregation job for process type: ${process_type}, error: ${error}`, module.id)
-                                })
+                                job_results.push(createJobInstance(jobId, jobConfig))
                             }
-                            //Engines are created, but the requested related jobs are not ok
-                            else if (aggregatedResult && !jobAggregatedResult) {
-                                response.payload.result = "engines_ok"
-                                //Publish message to 'lifecycle' topic to notify aggregators about the new instance
-                                DDB.increaseProcessTypeInstanceCounter(process_type)
-                                DDB.increaseProcessTypeBpmnJobCounter(process_type)
-                                resolve(response)
-                            }
-                            else {
-                                response.payload.result = "backend_error"
-                                //Make sure we clean up in case any member engine has been created
-                                deleteProcessInstance(process_type, instance_name).then(() => {
-                                    resolve(response)
-                                })
-                            }
-                        })
 
+                            await Promise.all(job_results).then(async (job_creation_results) => {
+                                // 3. Notify aggregation jobs about new instance
+                                await MQTTCOMM.emitProcessInstanceCreation(process_type, instance_name)  // Simplified call
+                                
+                                var jobAggregatedResult = true
+                                job_creation_results.forEach(element => {
+                                    if (element.payload.result != "created") {
+                                        jobAggregatedResult = false
+                                    }
+                                });
+                                
+                                if (aggregatedResult && jobAggregatedResult) {
+                                    response.payload.result = "ok"
+                                    //Publish message to 'lifecycle' topic to notify aggregators about the new instance
+                                    DDB.increaseProcessTypeInstanceCounter(process_type)
+                                    resolve(response)
+                                }
+                                //Engines are created, but the requested related jobs are not ok
+                                else if (aggregatedResult && !jobAggregatedResult) {
+                                    response.payload.result = "engines_ok"
+                                    //Publish message to 'lifecycle' topic to notify aggregators about the new instance
+                                    DDB.increaseProcessTypeInstanceCounter(process_type)
+                                    DDB.increaseProcessTypeBpmnJobCounter(process_type)
+                                    resolve(response)
+                                }
+                                else {
+                                    response.payload.result = "backend_error"
+                                    //Make sure we clean up in case any member engine has been created
+                                    deleteProcessInstance(process_type, instance_name).then(() => {
+                                        resolve(response)
+                                    })
+                                }
+                            })
+
+                        }
                     })
                 })
             }
