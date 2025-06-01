@@ -193,14 +193,14 @@ function onMessageReceived(hostname, port, topic, message) {
  * Inits MQTT broker connection and subscribes to the necessary topics to start operation
  * @param {Broker} broker Broker the supervisor should use to reach out to the managed workers and aggregators
  */
-function initBrokerConnection(broker) {
+async function initBrokerConnection(broker) {
     BROKER = broker
     LOG.logSystem('DEBUG', `initBrokerConnection function called`, module.id)
 
     MQTT.init(onMessageReceived)
     MQTT.createConnection(BROKER.host, BROKER.port, BROKER.username, BROKER.password)
-    MQTT.subscribeTopic(BROKER.host, BROKER.port, WORKERS_TO_SUPERVISOR)
-    MQTT.subscribeTopic(BROKER.host, BROKER.port, AGGREGATORS_TO_SUPERVISOR)
+    await MQTT.subscribeTopic(BROKER.host, BROKER.port, WORKERS_TO_SUPERVISOR)
+    await MQTT.subscribeTopic(BROKER.host, BROKER.port, AGGREGATORS_TO_SUPERVISOR)
 
     LOG.logSystem('DEBUG', `initBrokerConnection function ran successfully`, module.id)
 }
@@ -737,7 +737,7 @@ async function getJobCompleteData(jobId) {
  */
 async function subscribeNotificationTopic(topic) {
     if (!NOTIFICATION_TOPICS.has(topic)) {
-        MQTT.subscribeTopic(BROKER.host, BROKER.port, topic)
+        await MQTT.subscribeTopic(BROKER.host, BROKER.port, topic)
         NOTIFICATION_TOPICS.set(topic, 1)
     }
     else {
