@@ -698,7 +698,7 @@ async function getDeviationAggregators() {
     MQTT.publishTopic(BROKER.host, BROKER.port, SUPERVISOR_TO_AGGREGATORS, JSON.stringify(message))
     var promise = new Promise(function (resolve, reject) {
         REQUEST_PROMISES.set(request_id, resolve)
-        wait(20000000).then(() => {
+        wait(ENGINE_SEARCH_WAITING_PERIOD).then(() => {
             resolve('not_found')
         })
     });
@@ -721,7 +721,7 @@ async function getJobCompleteData(jobId) {
     MQTT.publishTopic(BROKER.host, BROKER.port, SUPERVISOR_TO_AGGREGATORS, JSON.stringify(message))
     var promise = new Promise(function (resolve, reject) {
         REQUEST_PROMISES.set(request_id, resolve)
-        wait(20000000).then(() => {
+        wait(ENGINE_SEARCH_WAITING_PERIOD).then(() => {
             resolve('not_found')
         })
     });

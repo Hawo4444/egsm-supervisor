@@ -729,7 +729,7 @@ async function createProcessInstance(process_type, instance_name, bpmn_job) {
 
                             await Promise.all(job_results).then(async (job_creation_results) => {
                                 // 3. Notify aggregation jobs about new instance
-                                await MQTTCOMM.emitProcessInstanceCreation(process_type, instance_name)  // Simplified call
+                                await MQTTCOMM.emitProcessInstanceCreation(process_type, instance_name)
                                 
                                 var jobAggregatedResult = true
                                 job_creation_results.forEach(element => {
