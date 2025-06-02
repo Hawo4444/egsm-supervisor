@@ -701,17 +701,24 @@ async function createProcessInstance(process_type, instance_name, bpmn_job) {
                         if (aggregatedResult) {
                             var job_results = []
                             
-                            // 1. Ensure deviation aggregation job exists
+                            // 1. Check if deviation aggregation job exists, create it if needed
                             var deviationAggJobId = process_type + '/deviation_aggregation_job'
-                            var deviationJobConfig = {
-                                id: deviationAggJobId,
-                                type: 'process-deviation-aggregation',
-                                processtype: process_type,
-                                perspectives: processDetails['perspectives'],
-                                notificationrules: 'NOTIFY_ALL'
-                            }
+                            var existingAggJob = await MQTTCOMM.searchForJob(deviationAggJobId)
                             
-                            job_results.push(createJobInstance(deviationAggJobId, deviationJobConfig))
+                            if (existingAggJob === 'not_found') {
+                                var deviationJobConfig = {
+                                    id: deviationAggJobId,
+                                    type: 'process-deviation-aggregation',
+                                    processtype: process_type,
+                                    perspectives: processDetails['perspectives'],
+                                    notificationrules: 'NOTIFY_ALL'
+                                }
+                                job_results.push(createJobInstance(deviationAggJobId, deviationJobConfig))
+                            } else {
+                                job_results.push(Promise.resolve({
+                                    payload: { result: "created" }
+                                }))
+                            }
 
                             // 2. Create BPMN job
                             if (bpmn_job) {
